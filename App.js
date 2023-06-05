@@ -1,23 +1,26 @@
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import React,{useEffect} from 'react';
+import React, {useEffect} from 'react';
 import SplashScreen from 'react-native-splash-screen';
+import 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
 
+const Stack = createStackNavigator();
 const App = () => {
   useEffect(() => {
     SplashScreen.hide();
   }, []);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={styles.container}>
-        <Text
-          ellipsizeMode="middle"
-          numberOfLines={1}
-          style={{color: 'white', width: 50}}>
-          Shruti Jasoliya
-        </Text>
-      </View>
-    </SafeAreaView>
+    <NavigationContainer>
+      {/* <SafeAreaView style={styles.container}></SafeAreaView> */}
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
