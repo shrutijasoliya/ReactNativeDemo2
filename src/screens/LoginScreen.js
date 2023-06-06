@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import SQLite from 'react-native-sqlite-storage';
+import {useNavigation} from '@react-navigation/native';
 
 import BgLogin from './../../assets/images/BgLogin.png';
 import IcUsername from './../../assets/images/ic_username.png';
@@ -36,15 +37,51 @@ const validationSchema = Yup.object({
     .required('Password is required!'),
 });
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = () => {
+  const navigation = useNavigation();
 
-  const createTable=()=>{
-    db.transaction(tx=>{
-      
-    })
-  }
+  useEffect(() => {
+    createTable();
+    getDataFromSQL();
+  }, []);
+
+  const createTable = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS UserDetails (ID INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT, Password Text);',
+      );
+    });
+  };
+
+  const setDataToSQL = async (username, password) => {
+    console.log('......2', username, password);
+    await db.transaction(async tx => {
+      await tx.executeSql(
+        'INSERT INTO UserDetails(Username, Password) VALUES (?,?)',
+        [username, password],
+      );
+    });
+  };
+
+  const getDataFromSQL = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT Username, Password FROM UserDetails',
+        [],
+        (tx, results) => {
+          console.log('......3', results.rows.item(0));
+          var length = results.rows.length;
+          if (length > 0) {
+            navigation.navigate('HomeScreen');
+           
+          }
+        },
+      );
+    });
+  };
 
   const userInfo = {username: '', password: ''};
+
   return (
     <Formik
       initialValues={userInfo}
@@ -53,7 +90,11 @@ const LoginScreen = ({navigation}) => {
         console.log('11111', values);
         setTimeout(() => {
           formikActions.resetForm();
-          navigation.navigate('SignUpScreen', {userDetails: values});
+          var uname = values.username;
+          var pass = values.password;
+          console.log('......1', uname, pass);
+          setDataToSQL(uname, pass);
+          navigation.navigate('HomeScreen');
         }, 1000);
       }}>
       {({values, errors, touched, handleChange, handleBlur, handleSubmit}) => {
