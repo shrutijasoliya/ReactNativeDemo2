@@ -1,25 +1,25 @@
 import {Button, StyleSheet, Text, View} from 'react-native';
-import React,{useState} from 'react';
-import { i18n } from '../../App';
-// import {I18n} from 'i18n-js/typings';
-import {I18n} from 'i18n-js';
+import React, {useState} from 'react';
+import {i18n} from '../../App';
+import {useNavigation} from '@react-navigation/native';
 
-// const i18n = new I18n();
-
-const WelcomeScreen = navigation => {
-    const [first, setfirst] = useState(true)
+const WelcomeScreen = () => {
+  const [changelanguage, setChangelanguage] = useState(true);
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
-        {i18n.t('shruti')} {i18n.t('jasoliya')}
-      </Text>
+      <Text style={styles.text}>{i18n.t('welcome')}</Text>
       <Button
         title="Change language"
         onPress={() => {
-        //   navigation.navigate('LoginScreen');
-        setfirst(!first);
-        
-        i18n.locale = first? 'gu':'en'
+          setChangelanguage(!changelanguage);
+          i18n.locale = changelanguage ? 'gu' : 'en';
+        }}
+      />
+      <Button
+        title="Get Started"
+        onPress={() => {
+          navigation.navigate('HomeScreen');
         }}
       />
     </View>
@@ -31,7 +31,7 @@ export default WelcomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   text: {

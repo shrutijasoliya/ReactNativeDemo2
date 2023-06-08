@@ -9,33 +9,19 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import SQLite from 'react-native-sqlite-storage';
-import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 
-import {AuthContext} from '../context/authContext';
-
 import BgLogin from './../../assets/images/BgLogin.png';
+import IcUsername from './../../assets/images/ic_username.png';
 import IcEmail from './../../assets/images/ic_email.png';
 import IcPassword from './../../assets/images/ic_password.png';
-import IcGoogle from '../../assets/images/ic_google.png';
-import IcFacebook from '../../assets/images/ic_facebook.png';
-
-const db = SQLite.openDatabase(
-  {
-    name: 'TestDB',
-    location: 'default',
-  },
-  () => {},
-  error => {
-    console.log('000000', error);
-  },
-);
 
 const validationSchema = Yup.object({
+  username: Yup.string().trim().required('Username is required!'),
   emailId: Yup.string()
     .email('EmailId is not valid.')
     .required('EmailId is required!'),
@@ -44,78 +30,29 @@ const validationSchema = Yup.object({
     .min(8, 'Password is too short!')
     .required('Password is required!'),
 });
+const userInfo = {username: '', emailId: '', password: ''};
 
-const LoginScreen = () => {
-  const navigation = useNavigation();
-  const [authState, setAuthState] = useContext(AuthContext);
-
-  useEffect(() => {
-    // createTable();
-    // getDataFromSQL();
-  }, []);
-
-  const createTable = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS UserDetails (ID INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT, Password Text);',
-      );
-    });
-  };
-
-  const setDataToSQL = async (username, password) => {
-    console.log('......2', username, password);
-    await db.transaction(async tx => {
-      await tx.executeSql(
-        'INSERT INTO UserDetails(Username, Password) VALUES (?,?)',
-        [username, password],
-      );
-    });
-  };
-
-  const getDataFromSQL = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT Username, Password FROM UserDetails',
-        [],
-        (tx, results) => {
-          console.log('......3', results.rows.item(0));
-          var length = results.rows.length;
-          if (length > 0) {
-            navigation.navigate('HomeScreen');
-          }
-        },
-      );
-    });
-  };
-
-  const userInfo = {emailId: '', password: ''};
-
-  const signInWithEmailPass = (email, pass, resetForm) => {
+const SignUpScreen = ({navigation}) => {
+  const createFirebaseUser = (email, pass) => {
     auth()
-      .signInWithEmailAndPassword(email, pass)
-      .then(response => {
-        console.log('12... logged in successfully!!', JSON.stringify(response));
-        Alert.alert('Logged in successfully!');
-        setAuthState({signedIn: true});
-        resetForm();
+      .createUserWithEmailAndPassword(email, pass)
+      .then(() => {
+        console.log('11... user created successfully!!');
+        Alert.alert('User created successfully!!');
       })
       .catch(error => {
-        if (error.code === 'auth/wrong-password') {
-          console.log('12... The password is wrong!');
-          Alert.alert('The password is wrong!');
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('11... That email address is already in use!');
+          Alert.alert('That email address is already in use!');
         }
 
-        if (error.code === 'auth/user-not-found') {
-          console.log('12... This user is not found!');
-          Alert.alert('This user is not found!');
+        if (error.code === 'auth/invalid-email') {
+          console.log('11... That email address is invalid!');
+          Alert.alert('That email address is invalid!');
         }
-        console.error('12...error in login... ', error);
+        console.error('11...error in signup... ', error);
       });
   };
-
-  const signInWithGoogle = () => {};
-
-  const signInWithFacebook = () => {};
 
   return (
     <Formik
@@ -124,23 +61,52 @@ const LoginScreen = () => {
       onSubmit={(values, formikActions) => {
         console.log('11111', values);
         setTimeout(() => {
-          // formikActions.resetForm();
+          formikActions.resetForm();
+          var uname = values.username;
           var email = values.emailId;
           var pass = values.password;
-          console.log('......1', email, pass);
-          signInWithEmailPass(email, pass, formikActions.resetForm);
-          // setDataToSQL(uname, pass);
+          console.log('......1', uname, email, pass);
+          createFirebaseUser(email, pass);
+          //   setDataToSQL(uname, pass);
+          navigation.navigate('LoginScreen');
         }, 1000);
       }}>
       {({values, errors, touched, handleChange, handleBlur, handleSubmit}) => {
-        const {emailId, password} = values;
+        const {username, emailId, password} = values;
         return (
           <View>
             <ImageBackground
               source={BgLogin}
               resizeMode="stretch"
               style={{height: '100%', width: '100%'}}>
-              <View style={styles.loginContainer}>
+              <View style={styles.signupContainer}>
+                {/* username */}
+                <View style={styles.userInputStyle}>
+                  <View style={{flex: 1}}>
+                    <Image
+                      source={IcUsername}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        tintColor: 'grey',
+                      }}
+                    />
+                  </View>
+                  <TextInput
+                    textContentType="name"
+                    value={username}
+                    onChangeText={handleChange('username')}
+                    onBlur={handleBlur('username')}
+                    placeholderTextColor="grey"
+                    placeholder="Enter Username"
+                    style={{height: 40, flex: 8, color: 'black'}}
+                  />
+                  {touched.username && errors.username ? (
+                    <Text style={{color: 'red'}}>
+                      {touched.username && errors.username}
+                    </Text>
+                  ) : null}
+                </View>
                 {/* email */}
                 <View style={styles.userInputStyle}>
                   <View style={{flex: 1}}>
@@ -195,15 +161,13 @@ const LoginScreen = () => {
                     </Text>
                   ) : null}
                 </View>
-                {/* Login */}
+                {/* SignUp */}
                 <TouchableOpacity
                   onPress={handleSubmit}
                   style={{
                     backgroundColor: '#47c153',
                     borderRadius: 20,
                     marginTop: 30,
-                    width: '100%',
-                    marginBottom: 8,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
@@ -216,23 +180,9 @@ const LoginScreen = () => {
                       letterSpacing: 1,
                       elevation: 5,
                     }}>
-                    Login
+                    Sign Up
                   </Text>
                 </TouchableOpacity>
-                {/* continue with... */}
-                <Text style={styles.textCommon}>Or, continue with..</Text>
-                <View style={styles.socialContainer}>
-                  <TouchableOpacity
-                    style={styles.socialTouchable}
-                    onPress={signInWithGoogle}>
-                    <Image source={IcGoogle} style={styles.socialImage} />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.socialTouchable}
-                    onPress={signInWithFacebook}>
-                    <Image source={IcFacebook} style={styles.socialImage} />
-                  </TouchableOpacity>
-                </View>
                 <TouchableOpacity
                   style={{
                     flex: 1,
@@ -242,12 +192,14 @@ const LoginScreen = () => {
                     bottom: 0,
                   }}
                   onPress={() => {
-                    navigation.navigate('SignUpScreen');
+                    navigation.navigate('LoginScreen');
                   }}>
-                  <Text style={styles.textCommon}>Don't have an account?</Text>
+                  <Text style={styles.textCommon}>
+                    Already have an account?
+                  </Text>
                   <Text style={{color: '#47c153', fontWeight: '800'}}>
                     {' '}
-                    Sign Up
+                    Login
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -259,10 +211,10 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
-  loginContainer: {
+  signupContainer: {
     marginStart: Platform.OS === 'ios' ? 28 : 30,
     height: '48%',
     width: '85%',
@@ -272,7 +224,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     paddingHorizontal: 30,
     marginBottom: Platform.OS === 'ios' ? 45 : 52,
-    alignItems: 'center',
   },
   userInputStyle: {
     marginTop: 30,
@@ -284,20 +235,4 @@ const styles = StyleSheet.create({
   textCommon: {
     color: 'black',
   },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginTop: 20,
-    width: '60%',
-  },
-  socialTouchable: {
-    elevation: 2,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    padding: 8,
-    shadowColor: 'black',
-    shadowOpacity: 0.2,
-    shadowOffset: {height: 2, width: 2},
-  },
-  socialImage: {width: 30, height: 30},
 });
