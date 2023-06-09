@@ -14,6 +14,7 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import SQLite from 'react-native-sqlite-storage';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import BgLogin from './../../assets/images/BgLogin.png';
 import IcUsername from './../../assets/images/ic_username.png';
@@ -33,11 +34,15 @@ const validationSchema = Yup.object({
 const userInfo = {username: '', emailId: '', password: ''};
 
 const SignUpScreen = ({navigation}) => {
-  const createFirebaseUser = (email, pass) => {
+  const createFirebaseUser = (uname, email, pass) => {
     auth()
       .createUserWithEmailAndPassword(email, pass)
-      .then(() => {
-        console.log('11... user created successfully!!');
+      .then(response => {
+        console.log(
+          '11... user created successfully!!',
+          JSON.stringify(response),
+        );
+        saveUserToFirebase(response.uid, uname, email, pass);
         Alert.alert('User created successfully!!');
       })
       .catch(error => {
@@ -54,6 +59,16 @@ const SignUpScreen = ({navigation}) => {
       });
   };
 
+  const saveUserToFirebase = (userUid, uname, email, pass) => {
+    firestore()
+      .collection('User')
+      .doc(userUid)
+      .set({userName: uname, userEmai: email, Password: pass})
+      .then(res => {
+        console.log('123456789... user saved to firestore', res);
+      });
+  };
+
   return (
     <Formik
       initialValues={userInfo}
@@ -66,7 +81,7 @@ const SignUpScreen = ({navigation}) => {
           var email = values.emailId;
           var pass = values.password;
           console.log('......1', uname, email, pass);
-          createFirebaseUser(email, pass);
+          createFirebaseUser(uname, email, pass);
           //   setDataToSQL(uname, pass);
           navigation.navigate('LoginScreen');
         }, 1000);
