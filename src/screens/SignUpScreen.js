@@ -42,8 +42,9 @@ const SignUpScreen = ({navigation}) => {
           '11... user created successfully!!',
           JSON.stringify(response),
         );
-        saveUserToFirebase(response.uid, uname, email, pass);
+        saveUserToFirebase(response.user.uid, uname, email, pass);
         Alert.alert('User created successfully!!');
+        navigation.navigate('LoginScreen');
       })
       .catch(error => {
         if (error.code === 'auth/email-already-in-use') {
@@ -60,6 +61,7 @@ const SignUpScreen = ({navigation}) => {
   };
 
   const saveUserToFirebase = (userUid, uname, email, pass) => {
+    console.log('qiurgfyesdjxz', userUid);
     firestore()
       .collection('User')
       .doc(userUid)
@@ -83,7 +85,6 @@ const SignUpScreen = ({navigation}) => {
           console.log('......1', uname, email, pass);
           createFirebaseUser(uname, email, pass);
           //   setDataToSQL(uname, pass);
-          navigation.navigate('LoginScreen');
         }, 1000);
       }}>
       {({values, errors, touched, handleChange, handleBlur, handleSubmit}) => {
