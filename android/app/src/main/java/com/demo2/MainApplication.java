@@ -28,7 +28,7 @@ public class MainApplication extends Application implements ReactApplication {
       // example:
       // packages.add(new MyReactNativePackage());
       // packages.add(new SplashScreenReactPackage());
-      packages.add(new ReactNativePushNotificationPackage());
+      // packages.add(new ReactNativePushNotificationPackage());
       return packages;
     }
 

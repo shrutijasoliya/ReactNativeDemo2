@@ -55,32 +55,19 @@ const registerAppWithFCM = async () => {
 };
 
 const pushNotification = () => {
-  console.log('push notification coming....');
+  console.log('push notification ....');
   PushNotification.configure({
-    // (optional) Called when Token is generated (iOS and Android)
     onRegister: function (token) {
       console.log('TOKEN:', token);
     },
 
-    // (required) Called when a remote is received or opened, or local notification is opened
     onNotification: function (notification) {
       console.log('NOTIFICATION:', notification);
 
-      // process the notification
-
-      // (required) Called when a remote is received or opened, or local notification is opened
-      notification.finish(PushNotification.FetchResult.NoData);
+      // ios
+      // notification.finish(PushNotification.FetchResult.NoData);
     },
 
-    // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
-    onAction: function (notification) {
-      console.log('ACTION:', notification.action);
-      console.log('NOTIFICATION:', notification);
-
-      // process the action
-    },
-
-    // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
     onRegistrationError: function (err) {
       console.error(err.message, err);
     },
@@ -92,34 +79,60 @@ const pushNotification = () => {
       sound: true,
     },
 
-    // Should the initial notification be popped automatically
-    // default: true
-    popInitialNotification: true,
+    // popInitialNotification: true,
 
-    /**
-     * (optional) default: true
-     * - Specified if permissions (ios) and token (android and ios) will requested or not,
-     * - if not, you must call PushNotificationsHandler.requestPermissions() later
-     * - if you are not using remote notification or do not have Firebase installed, use this:
-     *     requestPermissions: Platform.OS === 'ios'
-     */
-    requestPermissions: true,
+    // requestPermissions: true,
+    requestPermissions: Platform.OS === 'ios',
   });
 };
+
+const createChannelForPushNotification = () => {
+  console.log('creating channel for push notification...');
+  PushNotification.createChannel(
+    {
+      channelId: 'channel-id-test',
+      channelName: 'My Test channel',
+      channelDescription: 'A channel to categorise your notifications',
+      playSound: true,
+      soundName: 'default',
+      vibrate: true,
+    },
+    created => console.log(`createChannel returned '${created}'`),
+  );
+};
+
+// const pushNotificationLocalExp = () => {
+//   console.log('local push notification coming....');
+
+//   PushNotification.localNotification({
+//     id: 0,
+//     title: 'My notification title',
+//     message: 'My notification message',
+//     picture:
+//       'https://upload.wikimedia.org/wikipedia/commons/5/53/Domain_Examples.jpg',
+//     playSound: false,
+//     soundName: 'default',
+//     repeatType: 'minute',
+//     repeatTime: 3,
+//   });
+// };
 
 const App = () => {
   useEffect(() => {
     SplashScreen.hide();
     console.log('context vale: signedIn....', authState.signedIn);
-    registerAppWithFCM();
+    // registerAppWithFCM();
     pushNotification();
+    createChannelForPushNotification();
+    // pushNotificationLocalExp();
   }, []);
 
   const [authState, setAuthState] = useState({signedIn: false});
   return (
     <AuthContext.Provider value={[authState, setAuthState]}>
       <NavigationContainer>
-        {authState.signedIn ? <AppStack /> : <AuthStack />}
+        <AppStack/>
+        {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
       </NavigationContainer>
     </AuthContext.Provider>
   );

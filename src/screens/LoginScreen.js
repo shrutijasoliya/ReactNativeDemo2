@@ -107,7 +107,7 @@ const LoginScreen = () => {
       .signInWithEmailAndPassword(email, pass)
       .then(response => {
         console.log('12... logged in successfully!!', JSON.stringify(response));
-        Alert.alert('Logged in successfully!');
+        console.log('Logged in successfully!');
         setAuthState({signedIn: true});
         resetForm();
       })

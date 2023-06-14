@@ -1,7 +1,7 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Button, StyleSheet, Text, View, FlatList} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import SQLite from 'react-native-sqlite-storage';
-import {FlatList} from 'react-native-gesture-handler';
+import PushNotification from 'react-native-push-notification';
 
 const db = SQLite.openDatabase(
   {
@@ -50,9 +50,33 @@ const HomeScreen = () => {
     });
   };
 
+  const pushNotificationHandler = () => {
+    PushNotification.localNotification({
+      channelId: 'channel-id-test',
+      id: 0,
+      title: 'My notification title',
+      message: 'My notification message',
+      playSound: true,
+      soundName: 'default',
+      // color:'red',
+      // actions: ["ReplyInput"],
+      // actions: ["Yes", "No"],
+      // repeatType: 'minute',
+      // repeatTime: 3,
+    });
+
+    PushNotification.localNotificationSchedule({
+      channelId: 'channel-id-test',
+      title: 'My scheduled notification title',
+      message: 'My scheduled Notification Message after 15 seconds',
+      date: new Date(Date.now() + 15 * 1000),
+      allowWhileIdle: false,
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <View style={{borderWidth: 1, borderColor: 'black'}}>
+      {/* <View style={{borderWidth: 1, borderColor: 'black'}}>
         <FlatList
           data={userDetailList}
           renderItem={({item, index}) => {
@@ -68,7 +92,8 @@ const HomeScreen = () => {
             );
           }}
         />
-      </View>
+      </View> */}
+      <Button title="get notification" onPress={pushNotificationHandler} />
     </View>
   );
 };
@@ -79,7 +104,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    // alignItems: 'center',
+    alignItems: 'center',
     padding: 10,
   },
   text: {
