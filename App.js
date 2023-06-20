@@ -13,9 +13,12 @@ import WelcomeScreen from './src/screens/WelcomeScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import DeepLink from './src/screens/DeepLink';
+import MapViewScreen from './src/screens/MapViewScreen';
 import {AuthContext} from './src/context/authContext';
 import {en} from './src/locals/en';
 import {gu} from './src/locals/gu';
+
 
 const Stack = createStackNavigator();
 // const authContext = useContext(AuthContext);
@@ -38,6 +41,8 @@ const AppStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="DeepLink" component={DeepLink} />
+      <Stack.Screen name="MapViewScreen" component={MapViewScreen} />
     </Stack.Navigator>
   );
 };

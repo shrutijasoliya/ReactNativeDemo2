@@ -1,7 +1,17 @@
-import {Button, StyleSheet, Text, View, FlatList} from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import SQLite from 'react-native-sqlite-storage';
 import PushNotification from 'react-native-push-notification';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const db = SQLite.openDatabase(
   {
@@ -14,10 +24,11 @@ const db = SQLite.openDatabase(
   },
 );
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [userDetailList, setUserDetailList] = useState([]);
+  const [generatedLink, setGeneratedLink] = useState('');
 
   // const {username, password} = route.params.userDetails;
 
@@ -74,6 +85,56 @@ const HomeScreen = () => {
     });
   };
 
+  const buildLink = async () => {
+    const link = await dynamicLinks().buildLink({
+      link: 'https://www.youtube.com/',
+      // domainUriPrefix is created in your Firebase console
+      domainUriPrefix: 'https://reactnativedeeplinking.page.link/2irR',
+      // optional setup which updates Firebase analytics campaign
+      // "banner". This also needs setting up before hand
+      analytics: {
+        campaign: 'banner',
+      },
+    });
+
+    setGeneratedLink(link);
+  };
+
+  //foreground
+  const handleDynamicLink = link => {
+    console.log('foreground', link);
+    // Handle dynamic link inside your own application
+    if (link?.url === 'https://www.youtube.com/') {
+      // ...navigate to your offers screen
+      navigation.navigate('DeepLink');
+    } else {
+      Alert.alert('link does not match');
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
+    // When the component is unmounted, remove the listener
+    return () => unsubscribe();
+  }, []);
+
+  //background
+  useEffect(() => {
+    dynamicLinks()
+      .getInitialLink()
+      .then(link => {
+        console.log('background', link);
+
+        if (link?.url === 'https://www.youtube.com/') {
+          // ...navigate to your offers screen
+
+          navigation.navigate('DeepLink');
+        } else {
+          Alert.alert('link does not match');
+        }
+      });
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* <View style={{borderWidth: 1, borderColor: 'black'}}>
@@ -93,7 +154,30 @@ const HomeScreen = () => {
           }}
         />
       </View> */}
+      <View style={{alignItems: 'center'}}>
+        <Text style={styles.text}>{generatedLink}</Text>
+        {generatedLink && (
+          <TouchableOpacity
+            style={{
+              borderColor: 'grey',
+              borderRadius: 10,
+              borderWidth: 1,
+              padding: 5,
+              marginTop: 5,
+            }}
+            onPress={() => {
+              Clipboard.setString(generatedLink);
+            }}>
+            <Text style={styles.text}>Copy link</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <Button title="generate deep link" onPress={buildLink} />
       <Button title="get notification" onPress={pushNotificationHandler} />
+      <Button
+        title="Google Map"
+        onPress={() => navigation.navigate('MapViewScreen')}
+      />
     </View>
   );
 };
@@ -103,9 +187,9 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    padding: 10,
+    padding: 20,
   },
   text: {
     color: 'black',
