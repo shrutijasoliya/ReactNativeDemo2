@@ -18,7 +18,7 @@ import MapViewScreen from './src/screens/MapViewScreen';
 import {AuthContext} from './src/context/authContext';
 import {en} from './src/locals/en';
 import {gu} from './src/locals/gu';
-
+import FileScreen from './src/screens/FileScreen';
 
 const Stack = createStackNavigator();
 // const authContext = useContext(AuthContext);
@@ -43,6 +43,7 @@ const AppStack = () => {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="DeepLink" component={DeepLink} />
       <Stack.Screen name="MapViewScreen" component={MapViewScreen} />
+      <Stack.Screen name="FileScreen" component={FileScreen} />
     </Stack.Navigator>
   );
 };
@@ -136,7 +137,7 @@ const App = () => {
   return (
     <AuthContext.Provider value={[authState, setAuthState]}>
       <NavigationContainer>
-        <AppStack/>
+        <AppStack />
         {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
       </NavigationContainer>
     </AuthContext.Provider>

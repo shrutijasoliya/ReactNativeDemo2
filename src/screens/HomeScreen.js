@@ -4,7 +4,6 @@ import {
   Text,
   View,
   FlatList,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
@@ -108,7 +107,7 @@ const HomeScreen = ({navigation}) => {
       // ...navigate to your offers screen
       navigation.navigate('DeepLink');
     } else {
-      Alert.alert('link does not match');
+      console.log('link does not match');
     }
   };
 
@@ -130,7 +129,7 @@ const HomeScreen = ({navigation}) => {
 
           navigation.navigate('DeepLink');
         } else {
-          Alert.alert('link does not match');
+          console.log('link does not match');
         }
       });
   }, []);
@@ -177,6 +176,12 @@ const HomeScreen = ({navigation}) => {
       <Button
         title="Google Map"
         onPress={() => navigation.navigate('MapViewScreen')}
+      />
+      <Button
+        title="File system"
+        onPress={() => {
+          navigation.navigate('FileScreen');
+        }}
       />
     </View>
   );

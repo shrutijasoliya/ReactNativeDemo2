@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import java.util.List;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
+import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
