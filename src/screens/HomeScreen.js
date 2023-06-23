@@ -4,13 +4,19 @@ import {
   Text,
   View,
   FlatList,
+  Share,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import SQLite from 'react-native-sqlite-storage';
 import PushNotification from 'react-native-push-notification';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {EventRegister} from 'react-native-event-listeners';
+import RNDateTimePicker, {
+  DateTimePickerAndroid,
+} from '@react-native-community/datetimepicker';
 
 const db = SQLite.openDatabase(
   {
@@ -24,15 +30,32 @@ const db = SQLite.openDatabase(
 );
 
 const HomeScreen = ({navigation}) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [userDetailList, setUserDetailList] = useState([]);
   const [generatedLink, setGeneratedLink] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [ampm, setAmpm] = useState('');
 
   // const {username, password} = route.params.userDetails;
 
   useEffect(() => {
+    const myCustomEventHandler = string => {
+      console.log('+-+-+-+-+ ... home screen 123 ', string);
+    };
+    EventRegister.addEventListener(
+      'myCustomEvent',
+      myCustomEventHandler('started'),
+    );
     getDataFromSQL();
+    EventRegister.emit('myCustomEvent');
+
+    return () => {
+      EventRegister.removeEventListener(
+        'myCustomEvent',
+        myCustomEventHandler('removed'),
+      );
+    };
   }, []);
 
   const getDataFromSQL = () => {
@@ -99,6 +122,26 @@ const HomeScreen = ({navigation}) => {
     setGeneratedLink(link);
   };
 
+  const shareLinkHandler = async link => {
+    try {
+      const result = await Share.share({
+        message: link,
+        title: 'this is a title',
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log('activity type...', result.activityType);
+        } else {
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('action dismissed..');
+      }
+    } catch (error) {
+      console.log('error in share a link...', error);
+    }
+  };
+
   //foreground
   const handleDynamicLink = link => {
     console.log('foreground', link);
@@ -153,29 +196,103 @@ const HomeScreen = ({navigation}) => {
           }}
         />
       </View> */}
+      {/* Deep link */}
       <View style={{alignItems: 'center'}}>
         <Text style={styles.text}>{generatedLink}</Text>
         {generatedLink && (
-          <TouchableOpacity
-            style={{
-              borderColor: 'grey',
-              borderRadius: 10,
-              borderWidth: 1,
-              padding: 5,
-              marginTop: 5,
-            }}
-            onPress={() => {
-              Clipboard.setString(generatedLink);
-            }}>
-            <Text style={styles.text}>Copy link</Text>
-          </TouchableOpacity>
+          <View style={{flexDirection: 'row', columnGap: 10}}>
+            <TouchableOpacity
+              style={styles.linkButton}
+              onPress={() => {
+                Clipboard.setString(generatedLink);
+                ToastAndroid.show('Copied', ToastAndroid.SHORT);
+              }}>
+              <Text style={styles.text}>Copy link</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.linkButton}
+              onPress={() => {
+                shareLinkHandler(generatedLink);
+              }}>
+              <Text style={styles.text}>Share link</Text>
+            </TouchableOpacity>
+          </View>
         )}
+        <Button title="generate deep link" onPress={buildLink} />
       </View>
-      <Button title="generate deep link" onPress={buildLink} />
+      {/* DateTimePicker */}
+      <View style={{flexDirection: 'row', columnGap: 50}}>
+        {/* DatePicker */}
+        <View style={{alignItems: 'center'}}>
+          <Text style={styles.text}>
+            Date : {date.getDate()}/{date.getMonth()}/{date.getFullYear()}
+          </Text>
+          {showPicker && (
+            <RNDateTimePicker
+              value={new Date()}
+              mode="date"
+              display="calendar"
+              dateFormat="dayofweek day month"
+              onChange={date => {
+                let newTimeStamp = date.nativeEvent.timestamp;
+                console.log('selected timestamp : ', newTimeStamp);
+                let newDate = new Date(newTimeStamp);
+                console.log('selected date : ', newDate);
+                setShowPicker(false);
+                setDate(newDate);
+              }}
+            />
+          )}
+          <Button
+            title="date picker"
+            onPress={() => {
+              console.log('current date : ', date);
+              setShowPicker(true);
+            }}
+          />
+        </View>
+        {/* TimePicker */}
+        <View style={{alignItems: 'center'}}>
+          <Text style={styles.text}>
+            Time :{' '}
+            {date.getHours() > 12 ? date.getHours() - 12 : date.getHours()}:
+            {date.getMinutes()}:{date.getSeconds()}
+            {date.getHours() > 12 ? ' PM' : ' AM'}
+          </Text>
+          {showTimePicker && (
+            <RNDateTimePicker
+              value={new Date()}
+              mode="time"
+              display="clock"
+              onChange={time => {
+                let newTimeStamp = time.nativeEvent.timestamp;
+                console.log('selected time : ', newTimeStamp);
+                let newTime = new Date(newTimeStamp);
+                console.log('selected date : ', newTime);
+                setShowTimePicker(false);
+                setDate(newTime);
+              }}
+            />
+          )}
+          <Button
+            title="time picker"
+            onPress={() => {
+              console.log('current time : ', date);
+              setShowTimePicker(true);
+            }}
+          />
+        </View>
+      </View>
       <Button title="get notification" onPress={pushNotificationHandler} />
       <Button
         title="Google Map"
         onPress={() => navigation.navigate('MapViewScreen')}
+      />
+      <Button
+        title="Web View"
+        onPress={() => {
+          navigation.navigate('WebViewScreen');
+        }}
       />
       <Button
         title="File system"
@@ -204,5 +321,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     borderBottomWidth: 1,
     borderBottomColor: '#808080',
+  },
+  linkButton: {
+    borderColor: 'grey',
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 5,
+    marginTop: 5,
+    marginBottom: 10,
   },
 });
