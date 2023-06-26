@@ -8,6 +8,7 @@ import {I18n} from 'i18n-js';
 import messaging from '@react-native-firebase/messaging';
 // import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import PushNotification from 'react-native-push-notification';
+import {StripeProvider} from '@stripe/stripe-react-native';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -17,9 +18,11 @@ import DeepLink from './src/screens/DeepLink';
 import MapViewScreen from './src/screens/MapViewScreen';
 import WebViewScreen from './src/screens/WebViewScreen';
 import FileScreen from './src/screens/FileScreen';
+import PaymentScreen from './src/screens/PaymentScreen';
 import {AuthContext} from './src/context/authContext';
 import {en} from './src/locals/en';
 import {gu} from './src/locals/gu';
+import {STRIPE_PUBLISH_KEY} from '@env';
 
 const Stack = createStackNavigator();
 // const authContext = useContext(AuthContext);
@@ -46,6 +49,7 @@ const AppStack = () => {
       <Stack.Screen name="MapViewScreen" component={MapViewScreen} />
       <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
       <Stack.Screen name="FileScreen" component={FileScreen} />
+      <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
     </Stack.Navigator>
   );
 };
@@ -138,10 +142,15 @@ const App = () => {
   const [authState, setAuthState] = useState({signedIn: false});
   return (
     <AuthContext.Provider value={[authState, setAuthState]}>
-      <NavigationContainer>
-        <AppStack />
-        {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
-      </NavigationContainer>
+      <StripeProvider
+        publishableKey={STRIPE_PUBLISH_KEY}
+        merchantIdentifier="merchant.identifier"
+        urlScheme="your-url-scheme">
+        <NavigationContainer>
+          <AppStack />
+          {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
+        </NavigationContainer>
+      </StripeProvider>
     </AuthContext.Provider>
   );
 };

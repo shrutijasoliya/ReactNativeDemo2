@@ -19,7 +19,6 @@ const WebViewScreen = () => {
       renderLoading={() => (
         <ActivityIndicator
           color="blue"
-          
           size="large"
           style={{position: 'absolute', top: '50%', left: '45%'}}
         />

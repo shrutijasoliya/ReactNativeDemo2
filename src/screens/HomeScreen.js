@@ -300,6 +300,12 @@ const HomeScreen = ({navigation}) => {
           navigation.navigate('FileScreen');
         }}
       />
+      <Button
+        title="Payment Screen"
+        onPress={() => {
+          navigation.navigate('PaymentScreen');
+        }}
+      />
     </View>
   );
 };
