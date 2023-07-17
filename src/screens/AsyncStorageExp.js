@@ -2,6 +2,28 @@ import {Button, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export const STORAGE_KEYS = {
+  IS_FULL_APP_PURCHASED: '@is_full_app_purchased',
+};
+
+export const storeBooleanData = async (key, value) => {
+  try {
+    const stringValue = value.toString();
+    await AsyncStorage.setItem(key, stringValue);
+  } catch (e) {
+    console.log('error in storing boolean to async.. ', e);
+  }
+};
+// getItem returns a promise that either resolves to stored value when data is found for given key, or returns null otherwise.
+export const getBooleanData = async key => {
+  try {
+    const value = await AsyncStorage.getItem(key);
+    return value === 'true';
+  } catch (e) {
+    console.log('error in getting boolean to async.. ', e);
+  }
+};
+
 const AsyncStorageExp = () => {
   const myDetails = {
     firstName: 'Shruti',
@@ -36,6 +58,7 @@ const AsyncStorageExp = () => {
       console.log('error...2', error);
     }
   };
+
   return (
     <View
       style={{

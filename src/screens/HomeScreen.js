@@ -306,6 +306,12 @@ const HomeScreen = ({navigation}) => {
           navigation.navigate('PaymentScreen');
         }}
       />
+      <Button
+        title="In app purchase Screen"
+        onPress={() => {
+          navigation.navigate('InAppPurchase');
+        }}
+      />
     </View>
   );
 };

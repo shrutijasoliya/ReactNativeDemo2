@@ -19,10 +19,12 @@ import MapViewScreen from './src/screens/MapViewScreen';
 import WebViewScreen from './src/screens/WebViewScreen';
 import FileScreen from './src/screens/FileScreen';
 import PaymentScreen from './src/screens/PaymentScreen';
+import InAppPurchase from './src/screens/InAppPurchase';
 import {AuthContext} from './src/context/authContext';
 import {en} from './src/locals/en';
 import {gu} from './src/locals/gu';
 import {STRIPE_PUBLISH_KEY} from '@env';
+import { withIAPContext } from 'react-native-iap';
 
 const Stack = createStackNavigator();
 // const authContext = useContext(AuthContext);
@@ -50,6 +52,7 @@ const AppStack = () => {
       <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
       <Stack.Screen name="FileScreen" component={FileScreen} />
       <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+      <Stack.Screen name="InAppPurchase" component={InAppPurchase} />
     </Stack.Navigator>
   );
 };
@@ -155,7 +158,7 @@ const App = () => {
   );
 };
 
-export default App;
+export default withIAPContext(App);
 export {i18n};
 
 const styles = StyleSheet.create({

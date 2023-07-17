@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:758768894775:android:c2d2cad620db7c4b1010b2",
+        "mobilesdk_app_id": "1:758768894775:android:fdc2db983e2f50731010b2",
         "android_client_info": {
-          "package_name": "com.demo2"
+          "package_name": "com.shruti"
         }
       },
       "oauth_client": [
         {
-          "client_id": "758768894775-92ev1uob9762oa7f4r0pnrqstrga1pi0.apps.googleusercontent.com",
+          "client_id": "758768894775-t7429255ucokk1g8todgndvi2lsr7igp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.demo2",
+            "package_name": "com.shruti",
             "certificate_hash": "5905788709757c802dc62400668fccbfc0df77c1"
           }
         },

@@ -1,4 +1,4 @@
-package com.demo2;
+package com.shruti;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;

@@ -94,13 +94,15 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.demo2"
+    namespace "com.shruti"
     defaultConfig {
-        applicationId "com.demo2"
+        applicationId "com.shruti"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        missingDimensionStrategy "store", "play"
+
     }
 
     splits {
@@ -190,6 +192,8 @@ dependencies {
     implementation project(':react-native-splash-screen')
 
     implementation project(':react-native-file-viewer')
+    
+    implementation project(':react-native-iap')
 
 }
 
