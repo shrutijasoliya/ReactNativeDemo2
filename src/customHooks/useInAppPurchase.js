@@ -1,6 +1,11 @@
 import {StyleSheet, Text, View, Platform} from 'react-native';
 import React, {useState, useEffect} from 'react';
-import {requestPurchase, useIAP} from 'react-native-iap';
+import {
+  requestPurchase,
+  useIAP,
+  initConnection,
+  getProducts,
+} from 'react-native-iap';
 
 import {
   STORAGE_KEYS,
@@ -11,7 +16,7 @@ import {
 const {IS_FULL_APP_PURCHASED} = STORAGE_KEYS;
 
 //playstore item ids
-const itemSKUs = Platform.select({android: ['test1']});
+const itemSKUs = Platform.select({android: ['test1', 'test2']});
 
 console.log('jghbhejwfklmdsal,', itemSKUs);
 const useInAppPurchase = () => {
@@ -21,7 +26,6 @@ const useInAppPurchase = () => {
   const {
     connected,
     products,
-    getProducts,
     finishTransaction,
     currentPurchase,
     currentPurchaseError,
@@ -37,10 +41,10 @@ const useInAppPurchase = () => {
   // Get products from play store.
   useEffect(() => {
     if (connected) {
-      getProducts(itemSKUs);
+      getProducts({skus: itemSKUs});
       console.log('Getting products...');
     }
-    console.log(products);
+    console.log('products', products);
   }, [connected, getProducts]);
 
   // currentPurchase will change when the requestPurchase function is called. The purchase then needs to be checked and the purchase acknowledged so Google knows we have awared the user the in-app product.
@@ -78,6 +82,7 @@ const useInAppPurchase = () => {
   }, [currentPurchaseError]);
 
   const purchaseFullApp = async () => {
+    console.log('=-=-=-=-=', products);
     // Reset error msg
     if (connectionErrMsg !== '') setConnectionErrMsg('');
     if (!connected) {
@@ -85,15 +90,15 @@ const useInAppPurchase = () => {
     }
     // If we are connected & have products, purchase the item. Google will handle if user has no internet here.
     else if (products?.length > 0) {
-      requestPurchase(itemSKUs[1]);
+      requestPurchase({skus: itemSKUs});
       console.log('Purchasing products...');
     }
     // If we are connected but have no products returned, try to get products and purchase.
     else {
       console.log('No products. Now trying to get some...');
       try {
-        await getProducts(itemSKUs);
-        requestPurchase(itemSKUs[1]);
+        await getProducts({skus: itemSKUs});
+        requestPurchase({skus: itemSKUs});
         console.log('Got products, now purchasing...');
       } catch (error) {
         setConnectionErrMsg('Please check your internet connection');
