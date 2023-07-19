@@ -16,7 +16,7 @@ import {
 const {IS_FULL_APP_PURCHASED} = STORAGE_KEYS;
 
 //playstore item ids
-const itemSKUs = Platform.select({android: ['test1', 'test2']});
+const itemSKUs = Platform.select({android: ['test1']});
 
 console.log('jghbhejwfklmdsal,', itemSKUs);
 const useInAppPurchase = () => {

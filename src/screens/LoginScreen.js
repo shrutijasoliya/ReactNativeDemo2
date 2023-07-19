@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
-
 } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
 import {Formik} from 'formik';
@@ -20,6 +19,7 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 import {KeyboardAvoidingScrollView} from 'react-native-keyboard-avoiding-scroll-view';
 
 import {AuthContext} from '../context/authContext';
@@ -52,11 +52,6 @@ const validationSchema = Yup.object({
     .required('Password is required!'),
 });
 
-GoogleSignin.configure({
-  androidClientId:
-    '758768894775-n4l9l0lkugemcfi46b8ne6hutf0fa5c2.apps.googleusercontent.com',
-});
-
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [authState, setAuthState] = useContext(AuthContext);
@@ -64,6 +59,10 @@ const LoginScreen = () => {
   useEffect(() => {
     // createTable();
     // getDataFromSQL();
+    GoogleSignin.configure({
+      androidClientId:
+        '758768894775-aa1got3siknfr50qg3vp4m9ir5qm46jd.apps.googleusercontent.com',
+    });
   }, []);
 
   const createTable = () => {
@@ -133,6 +132,7 @@ const LoginScreen = () => {
       let user = await GoogleSignin.signIn();
       console.log('13..... signin with google successed! ', user);
       setAuthState({signedIn: true});
+      navigation.navigate('TempScreen');
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -150,165 +150,188 @@ const LoginScreen = () => {
     }
   };
 
-  const signInWithFacebook = () => {};
+  const signInWithFacebook = async () => {
+    const result = await LoginManager.logInWithPermissions([
+      'public_profile',
+      'email',
+    ]);
+
+    if (result.isCancelled) {
+      throw 'User cancelled the login process';
+    }
+
+    // Once signed in, get the users AccessToken
+    const data = await AccessToken.getCurrentAccessToken();
+
+    console.log('access token.. ', data);
+
+    if (!data) {
+      throw 'Something went wrong obtaining access token';
+    }
+
+    // Create a Firebase credential with the AccessToken
+    const facebookCredential = auth.FacebookAuthProvider.credential(
+      data.accessToken,
+    );
+    console.log('-=-=- ',facebookCredential);
+
+
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(facebookCredential);
+  };
 
   return (
     // <KeyboardAvoidingScrollView >
-      <Formik
-        initialValues={userInfo}
-        validationSchema={validationSchema}
-        onSubmit={(values, formikActions) => {
-          console.log('11111', values);
-          setTimeout(() => {
-            // formikActions.resetForm();
-            var email = values.emailId;
-            var pass = values.password;
-            console.log('......1', email, pass);
-            signInWithEmailPass(email, pass, formikActions.resetForm);
-            // setDataToSQL(uname, pass);
-          }, 1000);
-        }}>
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-        }) => {
-          const {emailId, password} = values;
-          return (
-            <View>
-              <ImageBackground
-                source={BgLogin}
-                resizeMode="stretch"
-                style={{height: '100%', width: '100%'}}>
-                <View style={styles.loginContainer}>
-                  {/* email */}
-                  <View style={styles.userInputStyle}>
-                    <View style={{flex: 1}}>
-                      <Image
-                        source={IcEmail}
-                        style={{
-                          width: 18,
-                          height: 18,
-                          tintColor: 'grey',
-                        }}
-                      />
-                    </View>
-                    <TextInput
-                      textContentType="emailAddress"
-                      value={emailId}
-                      onChangeText={handleChange('emailId')}
-                      onBlur={handleBlur('emailId')}
-                      placeholderTextColor="grey"
-                      placeholder="Enter EmailId"
-                      style={{height: 40, flex: 8, color: 'black'}}
-                    />
-                    {touched.emailId && errors.emailId ? (
-                      <Text style={{color: 'red'}}>
-                        {touched.emailId && errors.emailId}
-                      </Text>
-                    ) : null}
-                  </View>
-                  {/* password */}
-                  <View style={styles.userInputStyle}>
-                    <View style={{flex: 1}}>
-                      <Image
-                        source={IcPassword}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          tintColor: 'grey',
-                        }}
-                      />
-                    </View>
-                    <TextInput
-                      secureTextEntry={true}
-                      value={password}
-                      onBlur={handleBlur('password')}
-                      onChangeText={handleChange('password')}
-                      placeholderTextColor="grey"
-                      placeholder="Enter Password"
-                      style={{height: 40, flex: 8, color: 'black'}}
-                    />
-                    {touched.password && errors.password ? (
-                      <Text style={{color: 'red'}}>
-                        {touched.password && errors.password}
-                      </Text>
-                    ) : null}
-                  </View>
-                  {/* Login */}
-                  <TouchableOpacity
-                    onPress={handleSubmit}
-                    style={{
-                      backgroundColor: '#47c153',
-                      borderRadius: 20,
-                      marginTop: 30,
-                      width: '100%',
-                      marginBottom: 8,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text
+    <Formik
+      initialValues={userInfo}
+      validationSchema={validationSchema}
+      onSubmit={(values, formikActions) => {
+        console.log('11111', values);
+        setTimeout(() => {
+          // formikActions.resetForm();
+          var email = values.emailId;
+          var pass = values.password;
+          console.log('......1', email, pass);
+          signInWithEmailPass(email, pass, formikActions.resetForm);
+          // setDataToSQL(uname, pass);
+        }, 1000);
+      }}>
+      {({values, errors, touched, handleChange, handleBlur, handleSubmit}) => {
+        const {emailId, password} = values;
+        return (
+          <View>
+            <ImageBackground
+              source={BgLogin}
+              resizeMode="stretch"
+              style={{height: '100%', width: '100%'}}>
+              <View style={styles.loginContainer}>
+                {/* email */}
+                <View style={styles.userInputStyle}>
+                  <View style={{flex: 1}}>
+                    <Image
+                      source={IcEmail}
                       style={{
-                        paddingVertical: 12,
-                        color: 'white',
-                        fontSize: 16,
-                        fontWeight: 'bold',
-                        letterSpacing: 1,
-                        elevation: 5,
-                      }}>
-                      Login
-                    </Text>
-                  </TouchableOpacity>
-                  {/* social login... */}
-                  <Text style={styles.textCommon}>Or, continue with..</Text>
-                  <View style={styles.socialContainer}>
-                    {/* apple */}
-                    <TouchableOpacity
-                      style={styles.socialTouchable}
-                      onPress={signInWithApple}>
-                      <Image source={IcApple} style={styles.socialImage} />
-                    </TouchableOpacity>
-                    {/* google */}
-                    <TouchableOpacity
-                      style={styles.socialTouchable}
-                      onPress={signInWithGoogle}>
-                      <Image source={IcGoogle} style={styles.socialImage} />
-                    </TouchableOpacity>
-                    {/* facebook */}
-                    <TouchableOpacity
-                      style={styles.socialTouchable}
-                      onPress={signInWithFacebook}>
-                      <Image source={IcFacebook} style={styles.socialImage} />
-                    </TouchableOpacity>
+                        width: 18,
+                        height: 18,
+                        tintColor: 'grey',
+                      }}
+                    />
                   </View>
-                  <TouchableOpacity
+                  <TextInput
+                    textContentType="emailAddress"
+                    value={emailId}
+                    onChangeText={handleChange('emailId')}
+                    onBlur={handleBlur('emailId')}
+                    placeholderTextColor="grey"
+                    placeholder="Enter EmailId"
+                    style={{height: 40, flex: 8, color: 'black'}}
+                  />
+                  {touched.emailId && errors.emailId ? (
+                    <Text style={{color: 'red'}}>
+                      {touched.emailId && errors.emailId}
+                    </Text>
+                  ) : null}
+                </View>
+                {/* password */}
+                <View style={styles.userInputStyle}>
+                  <View style={{flex: 1}}>
+                    <Image
+                      source={IcPassword}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        tintColor: 'grey',
+                      }}
+                    />
+                  </View>
+                  <TextInput
+                    secureTextEntry={true}
+                    value={password}
+                    onBlur={handleBlur('password')}
+                    onChangeText={handleChange('password')}
+                    placeholderTextColor="grey"
+                    placeholder="Enter Password"
+                    style={{height: 40, flex: 8, color: 'black'}}
+                  />
+                  {touched.password && errors.password ? (
+                    <Text style={{color: 'red'}}>
+                      {touched.password && errors.password}
+                    </Text>
+                  ) : null}
+                </View>
+                {/* Login */}
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  style={{
+                    backgroundColor: '#47c153',
+                    borderRadius: 20,
+                    marginTop: 30,
+                    width: '100%',
+                    marginBottom: 8,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text
                     style={{
-                      flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      bottom: 0,
-                    }}
-                    onPress={() => {
-                      navigation.navigate('SignUpScreen');
+                      paddingVertical: 12,
+                      color: 'white',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      letterSpacing: 1,
+                      elevation: 5,
                     }}>
-                    <Text style={styles.textCommon}>
-                      Don't have an account?
-                    </Text>
-                    <Text style={{color: '#47c153', fontWeight: '800'}}>
-                      {' '}
-                      Sign Up
-                    </Text>
+                    Login
+                  </Text>
+                </TouchableOpacity>
+                {/* social login... */}
+                <Text style={styles.textCommon}>Or, continue with..</Text>
+                <View style={styles.socialContainer}>
+                  {/* apple */}
+                  <TouchableOpacity
+                    style={styles.socialTouchable}
+                    onPress={signInWithApple}>
+                    <Image source={IcApple} style={styles.socialImage} />
+                  </TouchableOpacity>
+                  {/* google */}
+                  <TouchableOpacity
+                    style={styles.socialTouchable}
+                    onPress={signInWithGoogle}>
+                    <Image source={IcGoogle} style={styles.socialImage} />
+                  </TouchableOpacity>
+                  {/* facebook */}
+                  <TouchableOpacity
+                    style={styles.socialTouchable}
+                    onPress={() =>
+                      signInWithFacebook().then(() =>
+                        console.log('sign in successfully!!'),
+                      )
+                    }>
+                    <Image source={IcFacebook} style={styles.socialImage} />
                   </TouchableOpacity>
                 </View>
-              </ImageBackground>
-            </View>
-          );
-        }}
-      </Formik>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'row',
+                    bottom: 0,
+                  }}
+                  onPress={() => {
+                    navigation.navigate('SignUpScreen');
+                  }}>
+                  <Text style={styles.textCommon}>Don't have an account?</Text>
+                  <Text style={{color: '#47c153', fontWeight: '800'}}>
+                    {' '}
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ImageBackground>
+          </View>
+        );
+      }}
+    </Formik>
     // </KeyboardAvoidingScrollView>
   );
 };

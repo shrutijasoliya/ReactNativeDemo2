@@ -13,6 +13,7 @@ import {StripeProvider} from '@stripe/stripe-react-native';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import TempScreen from './src/screens/TempScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import DeepLink from './src/screens/DeepLink';
 import MapViewScreen from './src/screens/MapViewScreen';
@@ -24,7 +25,7 @@ import {AuthContext} from './src/context/authContext';
 import {en} from './src/locals/en';
 import {gu} from './src/locals/gu';
 import {STRIPE_PUBLISH_KEY} from '@env';
-import { withIAPContext } from 'react-native-iap';
+import {withIAPContext} from 'react-native-iap';
 
 const Stack = createStackNavigator();
 // const authContext = useContext(AuthContext);
@@ -38,6 +39,7 @@ const AuthStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+      <Stack.Screen name="TempScreen" component={TempScreen} />
     </Stack.Navigator>
   );
 };
@@ -150,8 +152,8 @@ const App = () => {
         merchantIdentifier="merchant.identifier"
         urlScheme="your-url-scheme">
         <NavigationContainer>
-          <AppStack />
-          {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
+          {/* <AppStack /> */}
+          {authState.signedIn ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </StripeProvider>
     </AuthContext.Provider>

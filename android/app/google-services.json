@@ -37,6 +37,13 @@
             {
               "client_id": "758768894775-aa1got3siknfr50qg3vp4m9ir5qm46jd.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "758768894775-ucrih9vpnbra9m4bo8i1acicnf2ehfbu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shruti"
+              }
             }
           ]
         }
