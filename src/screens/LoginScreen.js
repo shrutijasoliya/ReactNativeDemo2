@@ -19,7 +19,7 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
+import {LoginManager, AccessToken, Profile} from 'react-native-fbsdk-next';
 import {KeyboardAvoidingScrollView} from 'react-native-keyboard-avoiding-scroll-view';
 
 import {AuthContext} from '../context/authContext';
@@ -55,6 +55,7 @@ const validationSchema = Yup.object({
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [authState, setAuthState] = useContext(AuthContext);
+  // const [profileImg, setProfileImg] = useState('');
 
   useEffect(() => {
     // createTable();
@@ -132,7 +133,6 @@ const LoginScreen = () => {
       let user = await GoogleSignin.signIn();
       console.log('13..... signin with google successed! ', user);
       setAuthState({signedIn: true});
-      navigation.navigate('TempScreen');
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -150,34 +150,45 @@ const LoginScreen = () => {
     }
   };
 
+  const addUserToFirebase = async data => {
+    try {
+      const facebookCredential = auth.FacebookAuthProvider.credential(
+        data.accessToken,
+      );
+      console.log('facebook credential... ', facebookCredential);
+      const signedIn = await auth().signInWithCredential(facebookCredential);
+      console.log('signed in successfully with.... ', signedIn);
+      setAuthState({signedIn: true});
+
+    } catch (error) {
+      console.log('error while adding user to firebase ... ', error);
+    }
+  };
+
   const signInWithFacebook = async () => {
-    const result = await LoginManager.logInWithPermissions([
-      'public_profile',
-      'email',
-    ]);
+    try {
+      const result = await LoginManager.logInWithPermissions([
+        'public_profile',
+        'email',
+      ]);
+      if (result.isCancelled) {
+        throw 'User cancelled the login process';
+      }
+      const data = await AccessToken.getCurrentAccessToken();
 
-    if (result.isCancelled) {
-      throw 'User cancelled the login process';
+      console.log('access token.. ', data.accessToken.toString());
+
+      if (!data) {
+        throw 'Something went wrong obtaining access token';
+      }
+      // const currentProfile = await Profile.getCurrentProfile();
+      // console.log('current profile... ', currentProfile);
+
+      // Create a Firebase credential with the AccessToken
+      addUserToFirebase(data);
+    } catch (error) {
+      console.log('error while login with facebook ... ', error);
     }
-
-    // Once signed in, get the users AccessToken
-    const data = await AccessToken.getCurrentAccessToken();
-
-    console.log('access token.. ', data);
-
-    if (!data) {
-      throw 'Something went wrong obtaining access token';
-    }
-
-    // Create a Firebase credential with the AccessToken
-    const facebookCredential = auth.FacebookAuthProvider.credential(
-      data.accessToken,
-    );
-    console.log('-=-=- ',facebookCredential);
-
-
-    // Sign-in the user with the credential
-    return auth().signInWithCredential(facebookCredential);
   };
 
   return (
@@ -301,11 +312,7 @@ const LoginScreen = () => {
                   {/* facebook */}
                   <TouchableOpacity
                     style={styles.socialTouchable}
-                    onPress={() =>
-                      signInWithFacebook().then(() =>
-                        console.log('sign in successfully!!'),
-                      )
-                    }>
+                    onPress={signInWithFacebook}>
                     <Image source={IcFacebook} style={styles.socialImage} />
                   </TouchableOpacity>
                 </View>

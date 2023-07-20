@@ -135,16 +135,18 @@ const createChannelForPushNotification = () => {
 // };
 
 const App = () => {
+  const [authState, setAuthState] = useState({signedIn: false});
+
   useEffect(() => {
     SplashScreen.hide();
-    console.log('context vale: signedIn....', authState.signedIn);
+    console.log('context value: signedIn....', authState.signedIn);
+    setAuthState(authState)
     // registerAppWithFCM();
     pushNotification();
     createChannelForPushNotification();
     // pushNotificationLocalExp();
   }, []);
 
-  const [authState, setAuthState] = useState({signedIn: false});
   return (
     <AuthContext.Provider value={[authState, setAuthState]}>
       <StripeProvider
