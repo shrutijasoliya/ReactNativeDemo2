@@ -20,6 +20,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import {LoginManager, AccessToken, Profile} from 'react-native-fbsdk-next';
+import Svg, {Circle} from 'react-native-svg';
 import {KeyboardAvoidingScrollView} from 'react-native-keyboard-avoiding-scroll-view';
 
 import {AuthContext} from '../context/authContext';
@@ -27,7 +28,8 @@ import {AuthContext} from '../context/authContext';
 import BgLogin from './../../assets/images/BgLogin.png';
 import IcEmail from './../../assets/images/ic_email.png';
 import IcPassword from './../../assets/images/ic_password.png';
-import IcApple from './../../assets/images/ic_apple.png';
+// import IcApple from './../../assets/images/ic_apple.png';
+import SvgComponent from '../../assets/images/ic_apple_svg';
 import IcGoogle from '../../assets/images/ic_google.png';
 import IcFacebook from '../../assets/images/ic_facebook.png';
 
@@ -159,7 +161,6 @@ const LoginScreen = () => {
       const signedIn = await auth().signInWithCredential(facebookCredential);
       console.log('signed in successfully with.... ', signedIn);
       setAuthState({signedIn: true});
-
     } catch (error) {
       console.log('error while adding user to firebase ... ', error);
     }
@@ -301,7 +302,18 @@ const LoginScreen = () => {
                   <TouchableOpacity
                     style={styles.socialTouchable}
                     onPress={signInWithApple}>
-                    <Image source={IcApple} style={styles.socialImage} />
+                    <SvgComponent />
+                    {/* <Image source={IcApple} style={styles.socialImage} /> */}
+                    {/* <Svg height={30} width={30} viewBox="0 0 100 100">
+                      <Circle
+                        cx="50"
+                        cy="50"
+                        r="50"
+                        stroke="purple"
+                        strokeWidth=".1"
+                        fill="red"
+                      />
+                    </Svg> */}
                   </TouchableOpacity>
                   {/* google */}
                   <TouchableOpacity

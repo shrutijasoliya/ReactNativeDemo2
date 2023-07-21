@@ -9,6 +9,7 @@ import messaging from '@react-native-firebase/messaging';
 // import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import PushNotification from 'react-native-push-notification';
 import {StripeProvider} from '@stripe/stripe-react-native';
+import DeviceInfo from 'react-native-device-info';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -140,7 +141,11 @@ const App = () => {
   useEffect(() => {
     SplashScreen.hide();
     console.log('context value: signedIn....', authState.signedIn);
-    setAuthState(authState)
+    console.log('app name.. ', DeviceInfo.getApplicationName());
+    console.log('device brand.. ', DeviceInfo.getBrand());
+    console.log('device id.. ', DeviceInfo.getDeviceId());
+    console.log('system version.. ', DeviceInfo.getSystemVersion());
+    setAuthState(authState);
     // registerAppWithFCM();
     pushNotification();
     createChannelForPushNotification();
@@ -154,8 +159,8 @@ const App = () => {
         merchantIdentifier="merchant.identifier"
         urlScheme="your-url-scheme">
         <NavigationContainer>
-          {/* <AppStack /> */}
-          {authState.signedIn ? <AppStack /> : <AuthStack />}
+          <AppStack />
+          {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
         </NavigationContainer>
       </StripeProvider>
     </AuthContext.Provider>
