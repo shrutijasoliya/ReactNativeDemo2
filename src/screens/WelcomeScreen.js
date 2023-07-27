@@ -2,10 +2,14 @@ import {Button, StyleSheet, Text, View, Alert, BackHandler} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {i18n} from '../../App';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useNetInfo} from '@react-native-community/netinfo';
+import FlashMessage, {showMessage} from 'react-native-flash-message';
 
 const WelcomeScreen = () => {
   const [changelanguage, setChangelanguage] = useState(true);
+  const [isNetConnected, setIsNetConnected] = useState('');
   const navigation = useNavigation();
+  const netInfo = useNetInfo();
 
   const backAction = () => {
     Alert.alert('Hold on!', 'Are you sure you want to exit ?', [
@@ -13,6 +17,17 @@ const WelcomeScreen = () => {
       {text: 'Yes', onPress: () => BackHandler.exitApp()},
     ]);
     return true;
+  };
+
+  const showErrorNetworkMessage = () => {
+    showMessage({
+      message: 'Internet is not connected!!',
+      backgroundColor: 'red',
+    });
+  };
+
+  const showSuccessNetworkMessage = () => {
+    showMessage({message: 'Internet is connected!!', backgroundColor: 'green'});
   };
 
   useFocusEffect(
@@ -26,6 +41,13 @@ const WelcomeScreen = () => {
       };
     }, []),
   );
+
+  useEffect(() => {
+    console.log('net info : ', netInfo);
+    console.log('is net connected ? : ', netInfo.isConnected?.toString());
+    setIsNetConnected(netInfo.isConnected?.toString());
+    isNetConnected ? showSuccessNetworkMessage() : showErrorNetworkMessage();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -43,6 +65,7 @@ const WelcomeScreen = () => {
           navigation.navigate('HomeScreen');
         }}
       />
+      <FlashMessage />
     </View>
   );
 };

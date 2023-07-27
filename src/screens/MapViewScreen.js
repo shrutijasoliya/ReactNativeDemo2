@@ -348,7 +348,7 @@ const MapViewScreen = () => {
         return {latitude: prev.latitude + 0.0005, longitude: prev.longitude};
       });
     }, 2000);
-    
+
     return () => {
       clearInterval();
     };

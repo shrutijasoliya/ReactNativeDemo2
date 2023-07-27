@@ -141,10 +141,10 @@ const App = () => {
   useEffect(() => {
     SplashScreen.hide();
     console.log('context value: signedIn....', authState.signedIn);
-    console.log('app name.. ', DeviceInfo.getApplicationName());
-    console.log('device brand.. ', DeviceInfo.getBrand());
-    console.log('device id.. ', DeviceInfo.getDeviceId());
-    console.log('system version.. ', DeviceInfo.getSystemVersion());
+    // console.log('app name.. ', DeviceInfo.getApplicationName());
+    // console.log('device brand.. ', DeviceInfo.getBrand());
+    // console.log('device id.. ', DeviceInfo.getDeviceId());
+    // console.log('system version.. ', DeviceInfo.getSystemVersion());
     setAuthState(authState);
     // registerAppWithFCM();
     pushNotification();
@@ -159,8 +159,8 @@ const App = () => {
         merchantIdentifier="merchant.identifier"
         urlScheme="your-url-scheme">
         <NavigationContainer>
-          <AppStack />
-          {/* {authState.signedIn ? <AppStack /> : <AuthStack />} */}
+          {/* <AppStack /> */}
+          {authState.signedIn ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </StripeProvider>
     </AuthContext.Provider>

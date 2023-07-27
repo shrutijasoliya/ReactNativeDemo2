@@ -22,8 +22,8 @@ export default function FileScreen() {
         type: [DocumentPicker.types.pdf],
         copyTo: 'cachesDirectory',
       });
-      console.log('file response........ ', response);
       setFileResponse(response);
+      console.log('file response........ ', response);
       //   await FileViewer.open(response.uri);
       //   UriToPath(response.uri);
       uploadFileToFirebase(response.fileCopyUri);
