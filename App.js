@@ -10,6 +10,7 @@ import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import {StripeProvider} from '@stripe/stripe-react-native';
 import DeviceInfo from 'react-native-device-info';
+import CodePush from 'react-native-code-push';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -34,6 +35,10 @@ const Stack = createStackNavigator();
 const i18n = new I18n();
 i18n.enableFallback = true;
 i18n.translations = {en, gu};
+
+const CODE_PUSH_OPTIONS = {
+  checkFrequency: CodePush.CheckFrequency.ON_APP_START,
+};
 
 const AuthStack = () => {
   return (
@@ -139,6 +144,14 @@ const App = () => {
   const [authState, setAuthState] = useState({signedIn: false});
 
   useEffect(() => {
+    CodePush.sync(
+      {installMode: CodePush.InstallMode.IMMEDIATE},
+      status => {
+        console.log('55555 codepush status.. ', status);
+      },
+      null,
+    );
+
     SplashScreen.hide();
     console.log('context value: signedIn....', authState.signedIn);
     // console.log('app name.. ', DeviceInfo.getApplicationName());
@@ -167,13 +180,6 @@ const App = () => {
   );
 };
 
-export default withIAPContext(App);
-export {i18n};
+export default CodePush(CODE_PUSH_OPTIONS)(withIAPContext(App));
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+export {i18n};

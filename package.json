@@ -34,6 +34,7 @@
     "react": "18.2.0",
     "react-native": "^0.71.8",
     "react-native-blob-util": "^0.18.3",
+    "react-native-code-push": "^8.0.2",
     "react-native-device-info": "^10.8.0",
     "react-native-document-picker": "^9.0.1",
     "react-native-dotenv": "^3.4.9",

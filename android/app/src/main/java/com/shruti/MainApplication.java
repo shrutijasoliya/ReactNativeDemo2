@@ -10,9 +10,10 @@ import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
-import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage; // <--- Import Package
 import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 import com.dooboolab.rniap.RNIapPackage;
+import com.microsoft.codepush.react.CodePush;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -23,6 +24,11 @@ public class MainApplication extends Application implements ReactApplication {
     }
 
     @Override
+    protected String getJSBundleFile() {
+      return CodePush.getBundleUrl();
+    }
+
+    @Override
     protected List<ReactPackage> getPackages() {
       @SuppressWarnings("UnnecessaryLocalVariable")
       List<ReactPackage> packages = new PackageList(this).getPackages();
@@ -30,7 +36,7 @@ public class MainApplication extends Application implements ReactApplication {
       // example:
       // packages.add(new MyReactNativePackage());
       // packages.add(new SplashScreenReactPackage());
-      // packages.add(new ReactNativePushNotificationPackage());      
+      // packages.add(new ReactNativePushNotificationPackage());
       // packages.add(new RNIapPackage());
       return packages;
     }
